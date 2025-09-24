@@ -19,9 +19,16 @@ pip install -r requirements.txt
 ## 安装FFmpeg
 
 ### Windows
-1. 下载FFmpeg: https://ffmpeg.org/download.html
-2. 解压并添加到系统PATH环境变量
-3. 或在项目目录中创建 `ffmpeg` 文件夹并放置ffmpeg.exe
+1. 运行项目中的安装脚本：
+   ```bash
+   # PowerShell
+   .\install_ffmpeg.ps1
+   
+   # 或使用批处理文件
+   .\simple_install_ffmpeg.bat
+   ```
+2. 或手动下载FFmpeg: https://ffmpeg.org/download.html
+3. 解压并添加到系统PATH环境变量
 
 ### Linux/Ubuntu
 ```bash
@@ -36,6 +43,12 @@ brew install ffmpeg
 
 ## 启动服务
 
+### 方法1：使用run.py脚本（推荐）
+```bash
+python run.py
+```
+
+### 方法2：直接使用uvicorn
 ```bash
 # 开发模式
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
@@ -94,6 +107,23 @@ with open("downloaded_video.mp4", "wb") as f:
 curl -o output.mp4 "http://localhost:8000/convert?url=https://example.com/video.mp4"
 ```
 
+## 测试服务
+
+### 运行演示脚本
+```bash
+python demo.py
+```
+
+### 运行测试脚本
+```bash
+python test.py
+```
+
+### 测试视频转换功能
+```bash
+python test_conversion.py
+```
+
 ## 技术栈
 
 - **FastAPI**: Web框架
@@ -108,12 +138,33 @@ curl -o output.mp4 "http://localhost:8000/convert?url=https://example.com/video.
 3. 服务会自动清理临时文件，无需手动干预
 4. 支持大多数常见视频格式的转换
 
-## 开发
+## 项目结构
 
-项目结构:
 ```
-├── main.py          # 主程序文件
-├── requirements.txt # 依赖文件
-├── README.md       # 说明文档
-└── temp/           # 临时文件目录（自动创建）
+├── main.py                    # 主程序文件
+├── requirements.txt           # 依赖文件
+├── README.md                  # 说明文档
+├── run.py                     # 启动脚本
+├── demo.py                    # 演示脚本
+├── test.py                    # 测试脚本
+├── test_conversion.py         # 视频转换测试脚本
+├── install_ffmpeg.ps1        # FFmpeg安装脚本(PowerShell)
+├── simple_install_ffmpeg.bat  # FFmpeg安装脚本(批处理)
+├── .gitignore                 # Git忽略文件
+└── temp/                      # 临时文件目录（自动创建）
 ```
+
+## 故障排除
+
+### FFmpeg相关问题
+1. 如果提示FFmpeg未找到，请运行安装脚本或手动安装
+2. 确保FFmpeg可执行文件在系统PATH中或项目目录中
+
+### 服务启动问题
+1. 确保所有Python依赖已安装：`pip install -r requirements.txt`
+2. 确保端口8000未被其他程序占用
+
+### 视频转换问题
+1. 确保提供的视频URL是有效的
+2. 某些网站可能有访问限制，导致下载失败
+3. 大文件转换可能需要较长时间，请耐心等待
