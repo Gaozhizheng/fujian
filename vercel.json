@@ -3,7 +3,7 @@
   "functions": {
     "cloudflare_deploy.py": {
       "maxDuration": 30,
-      "runtime": "python3.9"
+      "runtime": "@vercel/python@3.9"
     }
   },
   "routes": [
