@@ -2,8 +2,7 @@
   "version": 2,
   "functions": {
     "cloudflare_deploy.py": {
-      "maxDuration": 30,
-      "runtime": "@vercel/python@3.9"
+      "maxDuration": 30
     }
   },
   "routes": [

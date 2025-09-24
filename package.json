@@ -1,31 +1,11 @@
 {
-  "name": "video-converter-cloudflare",
+  "name": "fujian",
   "version": "1.0.0",
-  "description": "视频链接转MP4服务 - Cloudflare Workers版本",
-  "main": "dist/worker.js",
   "scripts": {
-    "build": "webpack",
-    "deploy": "wrangler deploy",
-    "dev": "wrangler dev",
-    "test": "echo \"Tests require external FFmpeg service\" && exit 0"
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
   },
   "dependencies": {
-    "itty-router": "^4.0.23"
-  },
-  "devDependencies": {
-    "@cloudflare/workers-types": "^4.20240101.0",
-    "typescript": "^5.3.0",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.0",
-    "wrangler": "^3.0.0"
-  },
-  "keywords": [
-    "cloudflare",
-    "workers",
-    "video",
-    "converter",
-    "ffmpeg"
-  ],
-  "author": "Your Name",
-  "license": "MIT"
+    "@vercel/python": "^3.0.0"
+  }
 }
