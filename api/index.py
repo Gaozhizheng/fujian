@@ -11,15 +11,15 @@ from typing import Optional
 # 外部FFmpeg服务配置（Render部署的服务）
 EXTERNAL_FFMPEG_SERVICE = os.getenv("EXTERNAL_FFMPEG_SERVICE", "https://fujian.onrender.com/convert")
 
-def handler(request):
+def handler(event, context):
     """Vercel Serverless Function入口函数"""
     try:
-        # 简单的请求处理，不依赖复杂的请求对象属性
-        # Vercel会将请求信息作为字典传递给函数
+        # 从event对象中获取请求信息
+        path = event.get('path', '/')
+        method = event.get('httpMethod', 'GET')
         
-        # 获取请求路径和方法
-        path = request.get('path', '/')
-        method = request.get('method', 'GET')
+        # 获取查询参数
+        query_params = event.get('queryStringParameters', {}) or {}
         
         # 处理根路径
         if path == "/" and method == "GET":
@@ -61,22 +61,8 @@ def handler(request):
         # 处理视频转换
         elif path == "/convert" and method == "GET":
             # 获取查询参数
-            query_string = request.get('query', '')
-            
-            # 简单解析查询参数
-            url = None
-            filename = None
-            
-            if query_string:
-                # 手动解析查询参数
-                params = query_string.split('&')
-                for param in params:
-                    if '=' in param:
-                        key, value = param.split('=', 1)
-                        if key == 'url':
-                            url = value
-                        elif key == 'filename':
-                            filename = value
+            url = query_params.get('url')
+            filename = query_params.get('filename')
             
             if not url:
                 return {
