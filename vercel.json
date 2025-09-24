@@ -1,14 +1,14 @@
 {
   "version": 2,
   "functions": {
-    "cloudflare_deploy.py": {
+    "api/index.py": {
       "maxDuration": 30
     }
   },
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "/cloudflare_deploy.py"
+      "dest": "/api/index.py"
     }
   ],
   "env": {
