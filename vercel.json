@@ -1,0 +1,23 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "cloudflare_deploy.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/cloudflare_deploy.py"
+    }
+  ],
+  "functions": {
+    "cloudflare_deploy.py": {
+      "maxDuration": 30
+    }
+  },
+  "env": {
+    "FFMPEG_ENABLED": "true"
+  }
+}

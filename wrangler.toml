@@ -1,0 +1,31 @@
+name = "video-converter-service"
+compatibility_date = "2024-01-01"
+compatibility_flags = [ "nodejs_compat" ]
+
+# 主工作器配置
+main = "dist/worker.js"
+
+# 环境变量配置
+[vars]
+EXTERNAL_FFMPEG_SERVICE = "https://your-vercel-app.vercel.app/convert"
+
+# 开发环境配置（用于本地测试）
+[env.development.vars]
+EXTERNAL_FFMPEG_SERVICE = "http://localhost:8000/convert"
+
+# 部署配置
+[env.production]
+
+[env.staging]
+
+# 路由配置（根据您的域名配置）
+[[routes]]
+pattern = "video-converter.your-domain.com/*"
+custom_domain = true
+
+# 构建配置
+[build]
+command = "npm run build"
+
+[build.upload]
+format = "service-worker"
