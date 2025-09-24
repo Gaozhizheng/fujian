@@ -11,13 +11,13 @@ from typing import Optional
 
 app = FastAPI(title="视频链接转MP4服务 - Cloudflare版本", version="1.0.0")
 
-# 外部FFmpeg服务配置（需要您自己部署）
-EXTERNAL_FFMPEG_SERVICE = os.getenv("EXTERNAL_FFMPEG_SERVICE", "https://your-ffmpeg-service.com/convert")
+# 外部FFmpeg服务配置（Render部署的服务）
+EXTERNAL_FFMPEG_SERVICE = os.getenv("EXTERNAL_FFMPEG_SERVICE", "https://fujian.onrender.com/convert")
 
 @app.get("/")
 async def root():
     return {
-        "message": "视频链接转MP4服务 (Cloudflare Workers版本)",
+        "message": "视频链接转MP4服务 (Vercel版本)",
         "note": "此版本需要外部FFmpeg服务支持",
         "endpoints": {
             "convert": "/convert?url=视频链接",
@@ -28,14 +28,14 @@ async def root():
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "platform": "cloudflare"}
+    return {"status": "healthy", "platform": "vercel"}
 
 @app.get("/info")
 async def service_info():
     return {
         "service": "video-converter",
         "version": "1.0.0",
-        "platform": "cloudflare-workers",
+        "platform": "vercel",
         "external_ffmpeg_service": EXTERNAL_FFMPEG_SERVICE
     }
 
@@ -86,23 +86,21 @@ async def convert_video(url: str, filename: Optional[str] = None):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"处理失败: {str(e)}")
 
-# Cloudflare Workers入口点
-async def fetch(request, env):
-    """Cloudflare Workers兼容的入口函数"""
-    from js import Response
-    
+# Vercel函数入口点
+async def handler(request):
+    """Vercel Serverless Function入口函数"""
     try:
-        # 这里需要将Python请求转换为Cloudflare Workers的格式
+        # 这里需要将Python请求转换为Vercel Serverless Function的格式
         # 实际部署时需要更复杂的适配代码
-        return Response.json({
-            "message": "请在wrangler.toml中配置正确的入口点",
+        return {
+            "message": "Vercel Serverless Function已配置",
             "status": "info"
-        })
+        }
     except Exception as e:
-        return Response.json({
+        return {
             "error": str(e),
             "status": "error"
-        }, status=500)
+        }
 
 if __name__ == "__main__":
     import uvicorn
