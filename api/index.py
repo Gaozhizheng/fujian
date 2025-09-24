@@ -11,67 +11,61 @@ from typing import Optional
 # 外部FFmpeg服务配置（Render部署的服务）
 EXTERNAL_FFMPEG_SERVICE = os.getenv("EXTERNAL_FFMPEG_SERVICE", "https://fujian.onrender.com/convert")
 
+# Vercel API路由处理
 def handler(request):
     """Vercel Serverless Function入口函数"""
     try:
-        # Vercel会将请求信息作为对象传递给函数
-        # 获取请求路径和方法
-        path = request.url.split('?')[0]  # 获取路径部分，去掉查询参数
-        method = request.method
+        # 从请求中获取路径和方法
+        path = request.headers.get('x-vercel-path', '/')
+        method = request.headers.get('x-vercel-method', 'GET')
+        
+        # 获取查询参数
+        query_string = request.headers.get('x-vercel-query', '')
         
         # 处理根路径
         if path == "/" and method == "GET":
-            return {
-                "statusCode": 200,
-                "headers": {"Content-Type": "application/json"},
-                "body": json.dumps({
-                    "message": "视频链接转MP4服务 (Vercel版本)",
-                    "note": "此版本需要外部FFmpeg服务支持",
-                    "endpoints": {
-                        "convert": "/convert?url=视频链接",
-                        "health": "/health",
-                        "info": "/info"
-                    }
-                })
-            }
+            return json.dumps({
+                "message": "视频链接转MP4服务 (Vercel版本)",
+                "note": "此版本需要外部FFmpeg服务支持",
+                "endpoints": {
+                    "convert": "/convert?url=视频链接",
+                    "health": "/health",
+                    "info": "/info"
+                }
+            })
         
         # 处理健康检查
         elif path == "/health" and method == "GET":
-            return {
-                "statusCode": 200,
-                "headers": {"Content-Type": "application/json"},
-                "body": json.dumps({"status": "healthy", "platform": "vercel"})
-            }
+            return json.dumps({"status": "healthy", "platform": "vercel"})
         
         # 处理服务信息
         elif path == "/info" and method == "GET":
-            return {
-                "statusCode": 200,
-                "headers": {"Content-Type": "application/json"},
-                "body": json.dumps({
-                    "service": "video-converter",
-                    "version": "1.0.0",
-                    "platform": "vercel",
-                    "external_ffmpeg_service": EXTERNAL_FFMPEG_SERVICE
-                })
-            }
+            return json.dumps({
+                "service": "video-converter",
+                "version": "1.0.0",
+                "platform": "vercel",
+                "external_ffmpeg_service": EXTERNAL_FFMPEG_SERVICE
+            })
         
         # 处理视频转换
         elif path == "/convert" and method == "GET":
-            # 获取查询参数
-            from urllib.parse import parse_qs, urlparse
-            parsed_url = urlparse(request.url)
-            query_params = parse_qs(parsed_url.query)
+            # 解析查询参数
+            url = None
+            filename = None
             
-            url = query_params.get('url', [None])[0]
-            filename = query_params.get('filename', [None])[0]
+            if query_string:
+                # 手动解析查询参数
+                params = query_string.split('&')
+                for param in params:
+                    if '=' in param:
+                        key, value = param.split('=', 1)
+                        if key == 'url':
+                            url = value
+                        elif key == 'filename':
+                            filename = value
             
             if not url:
-                return {
-                    "statusCode": 400,
-                    "headers": {"Content-Type": "application/json"},
-                    "body": json.dumps({"error": "URL参数不能为空"})
-                }
+                return json.dumps({"error": "URL参数不能为空"})
             
             try:
                 # 调用外部FFmpeg服务
@@ -89,55 +83,28 @@ def handler(request):
                 
                 if response.status_code == 200:
                     # 返回外部服务的响应
-                    return {
-                        "statusCode": 200,
-                        "headers": {"Content-Type": "application/json"},
-                        "body": json.dumps({
-                            "status": "success",
-                            "message": "转换请求已提交",
-                            "download_url": f"{EXTERNAL_FFMPEG_SERVICE}/download/{response.json().get('job_id')}"
-                        })
-                    }
+                    return json.dumps({
+                        "status": "success",
+                        "message": "转换请求已提交",
+                        "download_url": f"{EXTERNAL_FFMPEG_SERVICE}/download/{response.json().get('job_id')}"
+                    })
                 else:
-                    return {
-                        "statusCode": response.status_code,
-                        "headers": {"Content-Type": "application/json"},
-                        "body": json.dumps({"error": f"外部服务错误: {response.text}"})
-                    }
+                    return json.dumps({"error": f"外部服务错误: {response.text}"})
                     
             except requests.exceptions.Timeout:
-                return {
-                    "statusCode": 504,
-                    "headers": {"Content-Type": "application/json"},
-                    "body": json.dumps({"error": "外部服务响应超时"})
-                }
+                return json.dumps({"error": "外部服务响应超时"})
             except requests.exceptions.RequestException as e:
-                return {
-                    "statusCode": 502,
-                    "headers": {"Content-Type": "application/json"},
-                    "body": json.dumps({"error": f"外部服务连接失败: {str(e)}"})
-                }
+                return json.dumps({"error": f"外部服务连接失败: {str(e)}"})
             except Exception as e:
-                return {
-                    "statusCode": 500,
-                    "headers": {"Content-Type": "application/json"},
-                    "body": json.dumps({"error": f"处理失败: {str(e)}"})
-                }
+                return json.dumps({"error": f"处理失败: {str(e)}"})
         
         # 处理未找到的路径
         else:
-            return {
-                "statusCode": 404,
-                "headers": {"Content-Type": "application/json"},
-                "body": json.dumps({"error": "未找到路径"})
-            }
+            return json.dumps({"error": "未找到路径"})
+            
     except Exception as e:
         # 全局异常处理
-        return {
-            "statusCode": 500,
-            "headers": {"Content-Type": "application/json"},
-            "body": json.dumps({"error": f"服务器内部错误: {str(e)}"})
-        }
+        return json.dumps({"error": f"服务器内部错误: {str(e)}"})
 
 # 本地测试代码
 if __name__ == "__main__":
