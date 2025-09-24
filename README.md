@@ -114,16 +114,6 @@ curl -o output.mp4 "http://localhost:8000/convert?url=https://example.com/video.
 python demo.py
 ```
 
-### 运行测试脚本
-```bash
-python test.py
-```
-
-### 测试视频转换功能
-```bash
-python test_conversion.py
-```
-
 ## 技术栈
 
 - **FastAPI**: Web框架
@@ -145,9 +135,7 @@ python test_conversion.py
 ├── requirements.txt           # 依赖文件
 ├── README.md                  # 说明文档
 ├── run.py                     # 启动脚本
-├── demo.py                    # 演示脚本
-├── test.py                    # 测试脚本
-├── test_conversion.py         # 视频转换测试脚本
+├── demo.py                    # 演示和测试脚本
 ├── install_ffmpeg.ps1        # FFmpeg安装脚本(PowerShell)
 ├── simple_install_ffmpeg.bat  # FFmpeg安装脚本(批处理)
 ├── .gitignore                 # Git忽略文件
