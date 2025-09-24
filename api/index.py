@@ -14,9 +14,12 @@ EXTERNAL_FFMPEG_SERVICE = os.getenv("EXTERNAL_FFMPEG_SERVICE", "https://fujian.o
 def handler(request):
     """Vercel Serverless Function入口函数"""
     try:
-        # 解析请求路径和方法
-        path = request.path
-        method = request.method
+        # 简单的请求处理，不依赖复杂的请求对象属性
+        # Vercel会将请求信息作为字典传递给函数
+        
+        # 获取请求路径和方法
+        path = request.get('path', '/')
+        method = request.get('method', 'GET')
         
         # 处理根路径
         if path == "/" and method == "GET":
@@ -57,13 +60,23 @@ def handler(request):
         
         # 处理视频转换
         elif path == "/convert" and method == "GET":
-            # 解析查询参数
-            from urllib.parse import parse_qs
-            query_string = request.query_string.decode('utf-8')
-            query_params = parse_qs(query_string)
+            # 获取查询参数
+            query_string = request.get('query', '')
             
-            url = query_params.get('url', [None])[0]
-            filename = query_params.get('filename', [None])[0]
+            # 简单解析查询参数
+            url = None
+            filename = None
+            
+            if query_string:
+                # 手动解析查询参数
+                params = query_string.split('&')
+                for param in params:
+                    if '=' in param:
+                        key, value = param.split('=', 1)
+                        if key == 'url':
+                            url = value
+                        elif key == 'filename':
+                            filename = value
             
             if not url:
                 return {
