@@ -13,7 +13,6 @@ from typing import Optional
 # 外部FFmpeg服务配置（Render部署的服务）
 EXTERNAL_FFMPEG_SERVICE = os.getenv("EXTERNAL_FFMPEG_SERVICE", "https://fujian.onrender.com/convert")
 
-# Vercel API路由处理
 class handler(BaseHTTPRequestHandler):
     """Vercel Serverless Function处理类"""
     
@@ -151,18 +150,3 @@ class handler(BaseHTTPRequestHandler):
             error_response = {"error": f"服务器内部错误: {str(e)}"}
             self.wfile.write(json.dumps(error_response).encode())
             return
-
-# 本地测试代码
-if __name__ == "__main__":
-    from http.server import HTTPServer
-    
-    class TestHandler(BaseHTTPRequestHandler):
-        def do_GET(self):
-            # 创建handler实例并处理请求
-            handler_instance = handler
-            handler_instance.__init__(self, None, None, None)
-            handler_instance.do_GET()
-    
-    server = HTTPServer(('localhost', 8000), TestHandler)
-    print("测试服务器运行在 http://localhost:8000")
-    server.serve_forever()
